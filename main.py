@@ -26,6 +26,7 @@ try:
     import speech_recognition
     import nltk
     import spacy
+    import pyaudio
 except ImportError:
     print("Some libraries are missing, installing them now...")
     os.system("pip install -r requirements.txt")
@@ -37,11 +38,14 @@ import speech_recognition as sr
 import nltk
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
 nltk.downloader.download('punkt')
 nltk.downloader.download('averaged_perceptron_tagger')
 nltk.downloader.download('sentiment_lexicon')
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    os.system("python -m spacy download en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 conversation_history = []
 current_keywords = set()
@@ -148,8 +152,7 @@ def get_weather_forecast(text: str):
 
 
 def main():
-    text_to_speech("Hello sir, I am JARVIS, your personal assistant.")
-    text_to_speech("How can I help you today ?")
+    text_to_speech("Hello sir, I am JARVIS, your personal assistant. How can I help you today ?")
     while True:
         r = sr.Recognizer()
         with sr.Microphone() as source:
