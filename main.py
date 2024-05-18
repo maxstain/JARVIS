@@ -27,6 +27,7 @@ try:
     import nltk
     import spacy
     import pyaudio
+    import tensorflow
 except ImportError:
     print("Some libraries are missing, installing them now...")
     os.system("pip install -r requirements.txt")
@@ -38,9 +39,7 @@ import speech_recognition as sr
 import nltk
 import spacy
 
-nltk.downloader.download('punkt')
-nltk.downloader.download('averaged_perceptron_tagger')
-nltk.downloader.download('sentiment_lexicon')
+nltk.download('all')
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
@@ -141,7 +140,12 @@ def wait():
 
 def get_weather_forecast(text: str):
     # Extract the country from the text
-    location = text.split("weather in ")[1]
+    doc = nlp(text)
+    location = "Tunis"
+    for ent in doc.ents:
+        if ent.label_ == "GPE":
+            location = ent.text
+            break
     # Call a weather API or use a pre-defined response about weather
     url = f"https://api.weatherapi.com/v1/current.json?key=9140b212475c4b9f920175743241605&q={location}&aqi=yes"
     response = requests.get(url)
