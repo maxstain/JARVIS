@@ -39,10 +39,12 @@ import speech_recognition as sr
 import nltk
 import spacy
 
+print("About to download necessary NLTK resources, This may take a while...")
 nltk.download('all')
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
+    print("Downloading the English model for spaCy...")
     os.system("python -m spacy download en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
 
@@ -55,7 +57,7 @@ def extract_keywords(text):
     doc = nlp(text)
     for token in doc.ents:
         keywords.add(token.text)
-    # Access sentiment score directly (if needed)
+    # Access sentiment score directly
     sentiment_score = doc.sentiment  # This will be a numerical value
 
     if sentiment_score > 0:
