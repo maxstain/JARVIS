@@ -68,9 +68,10 @@ conversation_history = []
 current_keywords = set()
 credentials_json = "./credentials.json"
 
-# OpenAI API V2
+# OpenAI API
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API")
+    # api_key=os.environ.get("OPENAI_API_KEY")
+    api_key="sk-proj-U4v8yt3KdK2Te27Py3n1T3BlbkFJ4KksQrOFaONz1QoPTnPp"
 )
 
 
@@ -107,7 +108,7 @@ def get_current_keywords():
 
 def get_response(text: str):
     # url = "https://chat-gpt26.p.rapidapi.com/"
-    # url = "https://chatgpt-42.p.rapidapi.com/geminipro"
+    url = "https://chatgpt-42.p.rapidapi.com/geminipro"
     conversation_history = get_conversation_history()
     current_keywords = get_current_keywords()
     # Consider conversation history and keywords when crafting the prompt
@@ -119,40 +120,37 @@ def get_response(text: str):
         prompt += f"Considering this context and the current input '{text}', "
         prompt += f"they might be interested in..."
     # Gemini Pro API payload format
-    # payload = {
-    #     "messages": [
-    #         {
-    #             "role": "user",
-    #             "content": prompt + text
-    #         }
-    #     ],
-    #     "temperature": 0.9,
-    #     "top_k": 5,
-    #     "top_p": 0.9,
-    #     "max_tokens": 256,
-    #     "web_access": False
-    # }
-    headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": "61a70198edmshb08f1e98e9d907dp178f22jsn8ec21a1badf8",
-        "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com"
-    }
-    # Works with OpenAI API V1
-    # response = openai.Completion.create(engine="davinci", prompt=prompt + text, max_tokens=100, temperature=0.7,
-    #                                     top_p=1, frequency_penalty=0, presence_penalty=0, stop=["\n"],
-    #                                     model="gpt-3.5-turbo")
-    # Works with RapidAPI
-    # response = requests.post(url, json=payload, headers=headers)
-    # Works with OpenAI API V2
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
+    payload = {
+        "messages": [
             {
                 "role": "user",
                 "content": prompt + text
             }
         ],
-    )
+        "temperature": 0.9,
+        "top_k": 5,
+        "top_p": 0.9,
+        "max_tokens": 256,
+        "web_access": False
+    }
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": "61a70198edmshb08f1e98e9d907dp178f22jsn8ec21a1badf8",
+        "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com"
+    }
+
+    # Works with RapidAPI
+    response = requests.post(url, json=payload, headers=headers)
+    # Works with OpenAI API V2
+    # response = client.chat.completions.create(
+    #     model="gpt-3.5-turbo",
+    #     messages=[
+    #         {
+    #             "role": "user",
+    #             "content": prompt + text
+    #         }
+    #     ],
+    # )
 
     print(response.json())
     return response.json()
