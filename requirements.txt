@@ -8,3 +8,4 @@ pyaudio~=0.2.14
 google-cloud-speech~=2.26.0
 torch~=2.3.0
 tensorflow~=2.16.1
+openai~=1.30.1

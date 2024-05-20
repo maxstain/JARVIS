@@ -7,6 +7,17 @@
 # 1. Speech to text conversion
 # 2. Text to text conversion using GPT-3
 # 3. Text to speech conversion
+# The project uses the following libraries:
+# - SpeechRecognition
+# - pyttsx3
+# - OpenAI GPT-3 API
+# - requests
+# - nltk
+# - spacy
+# - google-cloud-speech
+# - pyaudio
+# - tensorflow
+# - torch
 # The project is made for educational purposes only
 # Project is still in progress
 # Project name: J.A.R.V.I.S
@@ -30,6 +41,7 @@ try:
     import tensorflow
     import google_cloud_speech
     import torch
+    import openai
 except ImportError:
     print("Some libraries are missing, installing them now...")
     os.system("pip install -r requirements.txt")
@@ -40,6 +52,8 @@ import pyttsx3
 import speech_recognition as sr
 import nltk
 import spacy
+import openai
+from openai import OpenAI
 
 print("About to download necessary NLTK resources, This may take a while...")
 nltk.download('all')
@@ -53,6 +67,11 @@ except OSError:
 conversation_history = []
 current_keywords = set()
 credentials_json = "./credentials.json"
+
+# OpenAI API V2
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API")
+)
 
 
 def extract_keywords(text):
@@ -88,7 +107,7 @@ def get_current_keywords():
 
 def get_response(text: str):
     # url = "https://chat-gpt26.p.rapidapi.com/"
-    url = "https://chatgpt-42.p.rapidapi.com/geminipro"
+    # url = "https://chatgpt-42.p.rapidapi.com/geminipro"
     conversation_history = get_conversation_history()
     current_keywords = get_current_keywords()
     # Consider conversation history and keywords when crafting the prompt
@@ -99,26 +118,41 @@ def get_response(text: str):
         prompt += f"Their last question was '{last_user_input}'. "
         prompt += f"Considering this context and the current input '{text}', "
         prompt += f"they might be interested in..."
-    payload = {
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt + text
-            }
-        ],
-        "temperature": 0.9,
-        "top_k": 5,
-        "top_p": 0.9,
-        "max_tokens": 256,
-        "web_access": False
-    }
+    # Gemini Pro API payload format
+    # payload = {
+    #     "messages": [
+    #         {
+    #             "role": "user",
+    #             "content": prompt + text
+    #         }
+    #     ],
+    #     "temperature": 0.9,
+    #     "top_k": 5,
+    #     "top_p": 0.9,
+    #     "max_tokens": 256,
+    #     "web_access": False
+    # }
     headers = {
         "content-type": "application/json",
         "X-RapidAPI-Key": "61a70198edmshb08f1e98e9d907dp178f22jsn8ec21a1badf8",
         "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com"
     }
-
-    response = requests.post(url, json=payload, headers=headers)
+    # Works with OpenAI API V1
+    # response = openai.Completion.create(engine="davinci", prompt=prompt + text, max_tokens=100, temperature=0.7,
+    #                                     top_p=1, frequency_penalty=0, presence_penalty=0, stop=["\n"],
+    #                                     model="gpt-3.5-turbo")
+    # Works with RapidAPI
+    # response = requests.post(url, json=payload, headers=headers)
+    # Works with OpenAI API V2
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt + text
+            }
+        ],
+    )
 
     print(response.json())
     return response.json()
