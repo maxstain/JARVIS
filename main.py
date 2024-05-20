@@ -52,6 +52,7 @@ except OSError:
 
 conversation_history = []
 current_keywords = set()
+credentials_json = "./credentials.json"
 
 
 def extract_keywords(text):
@@ -160,10 +161,12 @@ def main():
             print("Listening...")
             audio = r.listen(source)
             try:
-                text = r.recognize_google_cloud(audio, language="en-US",
-                                                credentials_json="credentials.json")
+                text = r.recognize_google(audio)
+                # Use Google Cloud Speech API for better accuracy TODO: FIX THIS
+                # text = r.recognize_google_cloud(audio, language="en-US",
+                #                                credentials_json=credentials_json)
                 print("You: ", text)
-                if text == "exit" or text == "goodbye" or text == "bye" or text == "see ya" or text == "see you" or text == "quit":
+                if text == "exit" or "goodbye" in text or "bye" in text or "see ya" in text or "see you" in text or text == "quit":
                     text_to_speech("Goodbye sir, have a nice day.")
                     break
                 elif "weather" in text.lower():
@@ -212,8 +215,9 @@ def main():
                 text_to_speech("Sorry, I am not able to process your request.")
                 print(e)
             except nltk.corpus.reader.util.MissingCorpusError as e:
-                text_to_speech("Sorry, I am not able to process your request.")
+                text_to_speech("Sorry, I need to download additional resources. Downloading now...")
                 print(e)
+                nltk.download('all')
             except KeyError as e:
                 text_to_speech("Sorry, I am not able to process your request.")
                 print(e)
