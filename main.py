@@ -28,6 +28,8 @@ try:
     import spacy
     import pyaudio
     import tensorflow
+    import google_cloud_speech
+    import torch
 except ImportError:
     print("Some libraries are missing, installing them now...")
     os.system("pip install -r requirements.txt")
@@ -121,14 +123,6 @@ def get_response(text: str):
     return response.json()
 
 
-def speech_to_text(audio_file: str):
-    r = sr.Recognizer()
-    with sr.AudioFile(audio_file) as source:
-        audio = r.record(source)
-        text = r.recognize_google(audio)
-        return text
-
-
 def text_to_speech(phrase: str):
     print("JARVIS: ", phrase)
     engine = pyttsx3.init()
@@ -162,10 +156,12 @@ def main():
     while True:
         r = sr.Recognizer()
         with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source)
             print("Listening...")
             audio = r.listen(source)
             try:
-                text = r.recognize_google(audio)
+                text = r.recognize_google_cloud(audio, language="en-US",
+                                                credentials_json="credentials.json")
                 print("You: ", text)
                 if text == "exit" or text == "goodbye" or text == "bye" or text == "see ya" or text == "see you" or text == "quit":
                     text_to_speech("Goodbye sir, have a nice day.")
