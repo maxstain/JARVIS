@@ -168,6 +168,12 @@ def wait():
 
 
 def get_weather_forecast(text: str):
+    """
+    This function fetches the specific weather information
+    from the weather API according to the city given
+    :param text:
+    :return :
+    """
     # Extract the country from the text
     doc = nlp(text)
     location = "Tunis"
