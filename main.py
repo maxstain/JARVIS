@@ -108,9 +108,12 @@ def get_current_keywords():
 
 def get_response(text: str):
     # url = "https://chat-gpt26.p.rapidapi.com/"
-    url = "https://chatgpt-42.p.rapidapi.com/geminipro"
+    # url = "https://chatgpt-42.p.rapidapi.com/geminipro"
+    url = "https://gemini-pro-ai.p.rapidapi.com/"
+
     conversation_history = get_conversation_history()
     current_keywords = get_current_keywords()
+
     # Consider conversation history and keywords when crafting the prompt
     prompt = ""
     if conversation_history and current_keywords and len(conversation_history) > 1 and len(current_keywords) > 1:
@@ -120,23 +123,22 @@ def get_response(text: str):
         prompt += f"Considering this context and the current input '{text}', "
         prompt += f"they might be interested in..."
     # Gemini Pro API payload format
-    payload = {
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt + text
-            }
-        ],
-        "temperature": 0.9,
-        "top_k": 5,
-        "top_p": 0.9,
-        "max_tokens": 256,
-        "web_access": False
-    }
+    payload = {"contents": [
+        {
+            "role": "user",
+            "parts": [{"text": prompt + text}]
+        }
+    ]}
+    # headers = {
+    #     "content-type": "application/json",
+    #     "X-RapidAPI-Key": "61a70198edmshb08f1e98e9d907dp178f22jsn8ec21a1badf8",
+    #     "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com"
+    # }
+    ### Gemini Pro API headers
     headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": "61a70198edmshb08f1e98e9d907dp178f22jsn8ec21a1badf8",
-        "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com"
+        "x-rapidapi-key": "5b8211c40emsh56871076a0cd443p1623b5jsnf1a9f4569391",
+        "x-rapidapi-host": "gemini-pro-ai.p.rapidapi.com",
+        "Content-Type": "application/json"
     }
 
     # Works with RapidAPI
